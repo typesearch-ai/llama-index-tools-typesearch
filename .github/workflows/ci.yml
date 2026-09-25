@@ -13,7 +13,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
-      - uses: astral-sh/setup-uv@v10
+      - uses: astral-sh/setup-uv@v10.2.0
+      # The typesearch SDK: from PyPI once it is there; until then, its public repository next to this one.
+      - run: bash .github/scripts/typesearch-python.sh
       - run: uv sync --locked
       - run: uv run ruff check .
       - run: uv run ruff format --check .
@@ -28,9 +30,11 @@ jobs:
         python: ['3.10', '3.11', '3.12', '3.13', '3.14']
     steps:
       - uses: actions/checkout@v7
-      - uses: astral-sh/setup-uv@v10
+      - uses: astral-sh/setup-uv@v10.2.0
         with:
           python-version: ${{ matrix.python }}
+      # The typesearch SDK: from PyPI once it is there; until then, its public repository next to this one.
+      - run: bash .github/scripts/typesearch-python.sh
       - run: uv run pytest --cov --cov-report=term-missing
         env:
           UV_PROJECT_ENVIRONMENT: .venv-ci
@@ -39,7 +43,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
-      - uses: astral-sh/setup-uv@v10
+      - uses: astral-sh/setup-uv@v10.2.0
       - run: uv build
       - run: uvx twine check --strict dist/*
       - name: The wheel asks for the published SDK, not a local folder

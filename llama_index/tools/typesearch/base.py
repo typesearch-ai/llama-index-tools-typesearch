@@ -89,8 +89,8 @@ class TypesearchToolSpec(BaseToolSpec):
         Args:
             api_key: Your typesearch API key. Defaults to the ``TYPESEARCH_API_KEY`` environment variable.
             base_url: Defaults to ``TYPESEARCH_BASE_URL``, or ``https://api.typesearch.ai``.
-            mode: How much ``search_news`` reads before ranking: ``fast`` (default, the cheapest and
-                quickest), ``ultra``, ``normal`` or ``deep``. See https://typesearch.ai/docs/modes.
+            mode: How much ``search_news`` reads before ranking: ``fast`` (default, about a second),
+                ``ultra`` (headlines only, the cheapest), ``normal`` or ``deep``. See https://typesearch.ai/docs/modes.
             max_results: Results per search and per ``find_similar``, 1 to 50. Defaults to 10.
             days: The window when the agent asks for none. The API's default is the last 7 days.
             include_domains: Always search only these domains or paths.
