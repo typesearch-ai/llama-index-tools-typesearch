@@ -235,6 +235,11 @@ class TypesearchToolSpec(BaseToolSpec):
         window = days if days is not None else self.days
         # `fast`: similar cuesta lo mismo en ultra, fast y normal, y fast no lee más que la nota de referencia.
         options: dict[str, Any] = {"mode": "fast", "max_results": self.max_results, **({"days": window} if window is not None else {})}
+        # Los filtros fijados en el constructor también valen acá; el agente no los ve.
+        for key in ("include_domains", "exclude_domains", "countries", "languages"):
+            fixed = getattr(self, key)
+            if fixed:
+                options[key] = list(fixed)
         try:
             res = self._api().similar(url, **options)
         except TypesearchError as e:

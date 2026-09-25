@@ -63,7 +63,8 @@ print(spec.search_news("lithium royalties in Chile", days=30, languages=["es", "
 | `timeout` · `max_retries` | `70` · `2` | Per request, as in the [`typesearch`](https://pypi.org/project/typesearch/) SDK. |
 | `client` | — | A `typesearch.Typesearch` client you already have. |
 
-A filter set here always applies, over what the agent asks for. To give the agent only some tools:
+A filter set here always applies, over what the agent asks for, in `search_news` and in `find_similar`
+(where the agent never sees them). To give the agent only some tools:
 `TypesearchToolSpec().to_tool_list(spec_functions=["search_news"])`.
 
 ## Errors

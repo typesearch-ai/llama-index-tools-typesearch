@@ -58,9 +58,8 @@ def compact_result(r: Result) -> dict[str, Any]:
             "url": r.url,
             "source": r.source,
             "published_at": to_minute(r.published_at),
-            # El país y el idioma de la fuente llegan con la API que filtra por país e idioma.
-            "country": getattr(r, "country", None),
-            "language": getattr(r, "language", None),
+            "country": r.country,
+            "language": r.language,
             "snippet": shorten(r.snippet, 300) if r.snippet else None,
             "highlights": list(r.highlights or []),
             "score": round2(r.score),

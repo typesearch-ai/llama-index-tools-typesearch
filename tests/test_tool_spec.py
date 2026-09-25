@@ -166,6 +166,20 @@ def test_find_similar(api: FakeApi) -> None:
     assert text.startswith('2 similar articles to "Inflación: qué esperan los analistas" · US$0.0014')
 
 
+def test_find_similar_keeps_the_fixed_filters(api: FakeApi) -> None:
+    spec(api, countries=["AR", "UY"], languages=["es"], exclude_domains=["examplewire.example"]).find_similar(
+        "https://diarioejemplo.example/a"
+    )
+    assert api.last.body == {
+        "url": "https://diarioejemplo.example/a",
+        "mode": "fast",
+        "max_results": 10,
+        "exclude_domains": ["examplewire.example"],
+        "countries": ["AR", "UY"],
+        "languages": ["es"],
+    }
+
+
 def test_find_similar_nothing_found(api: FakeApi) -> None:
     api.next(Scripted(200, search_response(0, object="similar", queries=[], reference=None)))
     assert spec(api).find_similar("https://diarioejemplo.example/a").startswith("No similar articles · US$")
