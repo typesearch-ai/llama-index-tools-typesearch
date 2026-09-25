@@ -1,0 +1,103 @@
+[build-system]
+requires = ["hatchling>=1.26"]
+build-backend = "hatchling.build"
+
+[project]
+name = "llama-index-tools-typesearch"
+version = "0.1.0"
+description = "llama-index tools typesearch integration: news search for agents, with a calibrated relevance score on every result."
+readme = "README.md"
+license = "MIT"
+license-files = ["LICENSE"]
+requires-python = ">=3.10,<4.0"
+authors = [{ name = "typesearch" }]
+maintainers = [{ name = "typesearch" }]
+keywords = ["llama-index", "llamaindex", "typesearch", "news", "news-api", "search", "tools", "agents", "llm"]
+classifiers = [
+  "Development Status :: 4 - Beta",
+  "Intended Audience :: Developers",
+  "Operating System :: OS Independent",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3 :: Only",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+  "Programming Language :: Python :: 3.14",
+  "Topic :: Internet :: WWW/HTTP :: Indexing/Search",
+  "Topic :: Scientific/Engineering :: Artificial Intelligence",
+  "Typing :: Typed",
+]
+dependencies = [
+  "llama-index-core>=0.13.0,<0.15",
+  "typesearch>=0.1.0,<1",
+]
+
+[project.urls]
+Homepage = "https://typesearch.ai"
+Documentation = "https://typesearch.ai/docs/integrations/llamaindex"
+Repository = "https://github.com/typesearch-ai/llama-index-tools-typesearch"
+Issues = "https://github.com/typesearch-ai/llama-index-tools-typesearch/issues"
+Changelog = "https://github.com/typesearch-ai/llama-index-tools-typesearch/blob/main/CHANGELOG.md"
+
+[dependency-groups]
+dev = [
+  "pytest>=8",
+  "pytest-asyncio>=0.24",
+  "pytest-cov>=5",
+  "jsonschema>=4.21",
+  "ruff>=0.6",
+  "mypy>=1.11",
+]
+
+# Mientras `typesearch` no esté en PyPI, sale de la carpeta del SDK en el repo de trabajo. Al publicarlo,
+# se borra esta sección y se rehace uv.lock (ver PUBLICAR.md). El paquete construido ya pide
+# "typesearch>=0.1.0": esta sección no entra en él.
+[tool.uv.sources]
+typesearch = { path = "../typesearch-python", editable = true }
+
+[tool.hatch.build.targets.wheel]
+include = ["llama_index/"]
+
+[tool.hatch.build.targets.sdist]
+include = ["llama_index/", "tests", "examples", "README.md", "CHANGELOG.md", "LICENSE"]
+
+# Lo que lee LlamaHub (llamahub.ai) para listar la integración.
+[tool.llamahub]
+contains_example = false
+import_path = "llama_index.tools.typesearch"
+
+[tool.llamahub.class_authors]
+TypesearchToolSpec = "typesearch"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-ra"
+asyncio_mode = "auto"
+asyncio_default_fixture_loop_scope = "function"
+# Avisos de pydantic que salen de adentro de llama-index-core, no de este paquete.
+filterwarnings = ["ignore::pydantic.warnings.PydanticDeprecatedSince20", "ignore::pydantic.warnings.PydanticDeprecatedSince211"]
+
+[tool.coverage.run]
+source = ["llama_index.tools.typesearch"]
+branch = true
+
+[tool.coverage.report]
+show_missing = true
+
+[tool.ruff]
+line-length = 140
+target-version = "py310"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP", "SIM"]
+ignore = ["E501"]
+
+# 3.12: numpy (llega con llama-index-core) trae stubs con sintaxis de 3.12. Que el código corre en 3.10
+# lo comprueban las pruebas del CI en 3.10 y ruff (target-version py310).
+[tool.mypy]
+python_version = "3.12"
+strict = true
+files = ["llama_index/tools/typesearch"]
+namespace_packages = true
+explicit_package_bases = true

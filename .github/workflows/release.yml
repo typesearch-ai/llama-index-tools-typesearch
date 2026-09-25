@@ -1,0 +1,57 @@
+# Publishes to PyPI when a GitHub release is published (tag v<version>), with trusted publishing (OIDC): no
+# token is stored. Configure the publisher on PyPI first (see PUBLICAR.md in the working repository); a
+# pending publisher works before the project exists.
+name: Release
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      repository:
+        description: Where to publish
+        type: choice
+        options: [testpypi, pypi]
+        default: testpypi
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: astral-sh/setup-uv@v10
+      - name: The tag matches the version
+        if: github.event_name == 'release'
+        run: test "v$(sed -nE 's/^version = "(.+)"/\1/p' pyproject.toml)" = "$GITHUB_REF_NAME"
+      - name: The SDK comes from PyPI, not a local folder
+        run: '! grep -q "^\[tool.uv.sources\]" pyproject.toml'
+      - run: uv sync --locked
+      - run: uv run ruff check .
+      - run: uv run mypy
+      - run: uv run pytest
+      - run: uv build
+      - run: uvx twine check --strict dist/*
+      - uses: actions/upload-artifact@v7
+        with:
+          name: dist
+          path: dist
+
+  publish:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: ${{ github.event_name == 'release' && 'pypi' || inputs.repository }}
+      url: https://${{ (github.event_name == 'release' || inputs.repository == 'pypi') && 'pypi.org' || 'test.pypi.org' }}/p/llama-index-tools-typesearch
+    permissions:
+      id-token: write # trusted publishing
+    steps:
+      - uses: actions/download-artifact@v8
+        with:
+          name: dist
+          path: dist
+      - uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          repository-url: ${{ (github.event_name == 'release' || inputs.repository == 'pypi') && 'https://upload.pypi.org/legacy/' || 'https://test.pypi.org/legacy/' }}
