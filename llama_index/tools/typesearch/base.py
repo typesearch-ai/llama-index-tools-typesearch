@@ -12,8 +12,6 @@ from typesearch import APIConnectionError, APIError, APITimeoutError, RateLimitE
 from ._format import (
     contents_output,
     contents_text,
-    coverage_output,
-    coverage_text,
     find_similar_output,
     find_similar_text,
     news_search_output,
@@ -55,7 +53,7 @@ def _check_list(name: str, value: list[str] | None, most: int) -> None:
 
 
 class TypesearchToolSpec(BaseToolSpec):
-    """typesearch tool spec: news search, article contents, similar coverage and index coverage.
+    """typesearch tool spec: news search, article contents and similar coverage.
 
     Each tool returns a compact, readable text — the same as the typesearch MCP server — with the link of
     every article to cite. Filters set here (``countries``, ``languages``, ``include_domains``,
@@ -65,7 +63,7 @@ class TypesearchToolSpec(BaseToolSpec):
     >>> tools = TypesearchToolSpec().to_tool_list()  # reads TYPESEARCH_API_KEY
     """
 
-    spec_functions = ["search_news", "get_contents", "find_similar", "check_coverage"]
+    spec_functions = ["search_news", "get_contents", "find_similar"]
 
     def __init__(
         self,
@@ -245,16 +243,3 @@ class TypesearchToolSpec(BaseToolSpec):
         except TypesearchError as e:
             raise _readable(e) from e
         return find_similar_text(find_similar_output(res))
-
-    def check_coverage(self, domain: str | None = None) -> str:
-        """Check whether a news domain is in the typesearch index (pass domain), or get the index coverage: how many
-        sources and articles, by country and by language. Free.
-
-        Args:
-            domain (str, optional): A news domain, such as example.com. Without it: the coverage by country and language.
-        """
-        try:
-            res = self._api().sources(domain=domain.strip()) if domain and domain.strip() else self._api().sources()
-        except TypesearchError as e:
-            raise _readable(e) from e
-        return coverage_text(coverage_output(res))

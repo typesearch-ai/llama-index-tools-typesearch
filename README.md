@@ -37,10 +37,13 @@ The same tools, parameters and descriptions as the [typesearch MCP server](https
 | `search_news` | News on a topic: title, link, source, date, country and language, standfirst and short excerpts, each with a relevance score. | `query`, `days`, `published_after`, `published_before`, `include_domains`, `exclude_domains`, `countries`, `languages` |
 | `get_contents` | Title, standfirst, date, source and a short verbatim excerpt (up to 25 words) of up to 10 article URLs — never the full text. | `urls`, `query` |
 | `find_similar` | Other coverage of the story in an article URL. | `url`, `days` |
-| `check_coverage` | Whether a news domain is covered, or the index coverage by country and language. Free. | `domain` |
 
-Each tool returns a compact, readable text list with the link of every article, the same text the MCP
-server returns: it leaves room in the context window for the answer. You can also call them directly:
+Each tool returns a compact, readable text list with the source and link of every article, the same text the
+MCP server returns: it leaves room in the context window for the answer. The index covers news from 130+
+countries in 30+ languages. Missing an outlet? Suggest it from the [dashboard](https://app.typesearch.ai)
+(**Suggest a source**) or write to support@typesearch.ai.
+
+You can also call the tools directly:
 
 ```python
 spec = TypesearchToolSpec(max_results=5)
@@ -77,8 +80,7 @@ The key is read on the first call, so building the tools never fails without it.
 ## Pricing
 
 Each call is billed to your key like the API request it makes: a search by its mode, `get_contents` per
-page, `find_similar` per request; `check_coverage` is free. Identical calls within 10 minutes come from the
-cache and cost nothing. Prices: [typesearch.ai/pricing](https://typesearch.ai/pricing).
+page, `find_similar` per request. Identical calls within 10 minutes come from the cache and cost nothing. Prices: [typesearch.ai/pricing](https://typesearch.ai/pricing).
 
 ## Development
 

@@ -9,7 +9,7 @@ import re
 from datetime import datetime, timezone
 from typing import Any
 
-from typesearch.types import ContentsResponse, Result, SearchResponse, Source, Sources
+from typesearch.types import ContentsResponse, Result, SearchResponse
 
 _WHERE = {
     "homepage": "from the homepage",
@@ -185,50 +185,3 @@ def contents_text(s: dict[str, Any]) -> str:
             lines.append(f"Relevance to the query: {x['relevance']:g}")
         blocks.append("\n".join(lines))
     return "\n\n".join([f"{ok} of {n} URL{'' if n == 1 else 's'} read · US${s['cost_usd']:.4f}", *blocks])
-
-
-def coverage_output(res: Sources | Source) -> dict[str, Any]:
-    if isinstance(res, Source):
-        return compact(
-            {
-                "domain": res.domain,
-                "covered": res.covered,
-                "name": res.name,
-                "country": res.country,
-                "languages": list(res.languages or []),
-                "articles": res.articles,
-                "last_refreshed_at": to_minute(res.last_refreshed_at),
-            }
-        )
-    by_country = [{"country": x.country or "international", "sources": x.sources} for x in res.by_country or []]
-    return compact(
-        {
-            "sources": res.total,
-            "articles": res.articles,
-            "updated_at": to_minute(res.updated_at),
-            "by_country": by_country,
-            "by_language": [{"language": x.language, "sources": x.sources} for x in res.by_language or []],
-        }
-    )
-
-
-def coverage_text(s: dict[str, Any]) -> str:
-    if "domain" in s:
-        if not s.get("covered"):
-            return f"{s['domain']} is not covered by the index."
-        place = " · ".join(v for v in (s.get("country"), "/".join(s.get("languages", [])) or None) if v)
-        name = f" ({s['name']})" if s.get("name") else ""
-        articles = f" · {s['articles']:,} articles" if "articles" in s else ""
-        refreshed = f" · last refreshed {s['last_refreshed_at']}" if s.get("last_refreshed_at") else ""
-        return f"{s['domain']} is covered{name}: {place}{articles}{refreshed}."
-
-    def listed(xs: list[dict[str, Any]], key: str) -> str:
-        return ", ".join(f"{x[key]} {x['sources']}" for x in xs)
-
-    return "\n".join(
-        [
-            f"The index has {s.get('sources', 0):,} sources and {s.get('articles', 0):,} articles.",
-            f"Sources by country: {listed(s.get('by_country', []), 'country')}.",
-            f"Sources by language: {listed(s.get('by_language', []), 'language')}.",
-        ]
-    )

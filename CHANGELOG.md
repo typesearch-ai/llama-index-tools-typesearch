@@ -7,8 +7,8 @@ All notable changes to `llama-index-tools-typesearch` are documented here. The f
 
 First release.
 
-- `TypesearchToolSpec` with four tools: `search_news`, `get_contents`, `find_similar` and `check_coverage`,
-  with the names, parameters and descriptions of the typesearch MCP server.
+- `TypesearchToolSpec` with three tools: `search_news`, `get_contents` and `find_similar`, with the names,
+  parameters and descriptions of the typesearch MCP server.
 - Each tool returns the compact, readable text of the MCP server, with the link of every article.
 - Filters fixed in the constructor (`countries`, `languages`, `include_domains`, `exclude_domains`) always apply,
   in `search_news` and in `find_similar`.

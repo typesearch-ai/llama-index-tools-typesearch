@@ -26,9 +26,9 @@ def test_class() -> None:
     assert BaseToolSpec.__name__ in [b.__name__ for b in TypesearchToolSpec.__mro__]
 
 
-def test_four_tools_with_the_mcp_names_and_parameters(api: FakeApi) -> None:
+def test_three_tools_with_the_mcp_names_and_parameters(api: FakeApi) -> None:
     ts = tools(spec(api))
-    assert list(ts) == ["search_news", "get_contents", "find_similar", "check_coverage"]
+    assert list(ts) == ["search_news", "get_contents", "find_similar"]
     props = {name: t.metadata.get_parameters_dict() for name, t in ts.items()}
     assert list(props["search_news"]["properties"]) == [
         "query",
@@ -44,7 +44,6 @@ def test_four_tools_with_the_mcp_names_and_parameters(api: FakeApi) -> None:
     assert props["search_news"]["properties"]["countries"]["description"].startswith("Only sources from these countries")
     assert list(props["get_contents"]["properties"]) == ["urls", "query"]
     assert list(props["find_similar"]["properties"]) == ["url", "days"]
-    assert list(props["check_coverage"]["properties"]) == ["domain"]
     assert "Cite the link of every fact." in ts["search_news"].metadata.description
 
 
@@ -185,17 +184,9 @@ def test_find_similar_nothing_found(api: FakeApi) -> None:
     assert spec(api).find_similar("https://diarioejemplo.example/a").startswith("No similar articles · US$")
 
 
-def test_check_coverage(api: FakeApi) -> None:
-    s = spec(api)
-    assert (
-        s.check_coverage("diarioejemplo.example")
-        == "diarioejemplo.example is covered (Diario Ejemplo): AR · es · 1,520 articles · last refreshed 2026-09-22T14:05Z."
-    )
-    assert api.last.query["domain"] == ["diarioejemplo.example"]
-    assert s.check_coverage("otro.example") == "otro.example is not covered by the index."
-    assert s.check_coverage() == (
-        "The index has 1,234 sources and 567,890 articles.\nSources by country: AR 120, international 4.\nSources by language: es 900."
-    )
+def test_the_index_coverage_is_not_a_tool() -> None:
+    assert not hasattr(TypesearchToolSpec, "check_coverage")
+    assert "check_coverage" not in TypesearchToolSpec.spec_functions
 
 
 def test_errors_are_readable_and_keep_the_sdk_error(api: FakeApi) -> None:
@@ -215,7 +206,7 @@ def test_errors_are_readable_and_keep_the_sdk_error(api: FakeApi) -> None:
 def test_a_missing_key_fails_the_call_not_the_constructor(api: FakeApi) -> None:
     s = TypesearchToolSpec(base_url=api.url)
     with pytest.raises(TypesearchToolError, match="Missing API key"):
-        s.check_coverage()
+        s.find_similar("https://diarioejemplo.example/a")
     assert api.requests == []
 
 

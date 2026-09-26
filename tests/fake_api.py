@@ -238,31 +238,6 @@ class FakeApi:
             if self._valid(h, "ContentsRequest", body):
                 self._send(h, 200, contents_response(body["urls"], body.get("query")))
             return None
-        if route == "GET /v1/sources":
-            domain = parse_qs(url.query).get("domain", [None])[0]
-            if domain is None:
-                out: dict[str, Any] = {
-                    "object": "sources",
-                    "updated_at": "2026-09-22T14:05:02.000Z",
-                    "total": 1234,
-                    "articles": 567890,
-                    "by_country": [{"country": "AR", "sources": 120}, {"country": None, "sources": 4}],
-                    "by_language": [{"language": "es", "sources": 900}],
-                }
-            elif domain == "diarioejemplo.example":
-                out = {
-                    "object": "source",
-                    "domain": domain,
-                    "covered": True,
-                    "name": "Diario Ejemplo",
-                    "country": "AR",
-                    "languages": ["es"],
-                    "articles": 1520,
-                    "last_refreshed_at": "2026-09-22T14:05:02.000Z",
-                }
-            else:
-                out = {"object": "source", "domain": domain, "covered": False}
-            return self._send(h, 200, out)
         return self._send(h, 404, problem(404, "not_found"))
 
     def _valid(self, h: BaseHTTPRequestHandler, name: str, body: Any) -> bool:
